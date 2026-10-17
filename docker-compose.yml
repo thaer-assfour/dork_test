@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dorkhub
+      POSTGRES_PASSWORD: dorkhub
+      POSTGRES_DB: dorkhub
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dorkhub"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+
+  app:
+    build: ./backend
+    env_file: .env
+    environment:
+      DORKHUB_DATABASE_URL: postgresql+psycopg://dorkhub:dorkhub@postgres:5432/dorkhub
+      DORKHUB_TASK_BACKEND: rq
+      DORKHUB_REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  worker:
+    build: ./backend
+    command: rq worker dorkhub --url redis://redis:6379/0
+    env_file: .env
+    environment:
+      DORKHUB_DATABASE_URL: postgresql+psycopg://dorkhub:dorkhub@postgres:5432/dorkhub
+      DORKHUB_TASK_BACKEND: rq
+      DORKHUB_REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  pgdata:

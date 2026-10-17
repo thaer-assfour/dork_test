@@ -22,3 +22,6 @@ engagements/
 .DS_Store
 .idea/
 .vscode/
+
+# TS build info
+*.tsbuildinfo
