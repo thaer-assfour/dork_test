@@ -1,0 +1,66 @@
+# DorkHub starter dork library.
+# Standard, well-known recon patterns used in authorized bug bounty / disclosure
+# programs. Keep high-value, low-noise items at priority 1. Variables:
+#   {domain}  {wildcard}  {org}  {url}
+# Mergeable items sharing a merge_group + prefix are fused into one OR query.
+
+- category: exposed_files
+  name: backup_archives
+  template: "site:{domain} ext:bak"
+  priority: 1
+  mergeable: true
+  merge_group: file_ext
+  description: "Backup/archive files left in web root."
+
+- category: exposed_files
+  name: config_files
+  template: "site:{domain} ext:env"
+  priority: 1
+  mergeable: true
+  merge_group: file_ext
+  description: "Environment/config files exposed to the web."
+
+- category: exposed_files
+  name: log_files
+  template: "site:{domain} ext:log"
+  priority: 2
+  mergeable: true
+  merge_group: file_ext
+  description: "Log files indexed publicly."
+
+- category: directory_listing
+  name: open_index
+  template: 'site:{domain} intitle:"index of"'
+  priority: 2
+  mergeable: false
+  description: "Open directory listings."
+
+- category: admin_surfaces
+  name: login_portals
+  template: "site:{domain} inurl:login"
+  priority: 2
+  mergeable: true
+  merge_group: inurl_admin
+  description: "Login / sign-in portals."
+
+- category: admin_surfaces
+  name: admin_paths
+  template: "site:{domain} inurl:admin"
+  priority: 2
+  mergeable: true
+  merge_group: inurl_admin
+  description: "Admin paths."
+
+- category: api_surfaces
+  name: api_docs
+  template: "site:{domain} inurl:api"
+  priority: 2
+  mergeable: false
+  description: "API endpoints / documentation."
+
+- category: diagnostics
+  name: error_pages
+  template: 'site:{domain} "stack trace"'
+  priority: 3
+  mergeable: false
+  description: "Pages leaking stack traces / debug info."
