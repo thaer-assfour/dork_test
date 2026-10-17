@@ -2,12 +2,19 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Look for .env at the repo root (one level above backend/) and in backend/,
+# so it is found whether you run from the repo root or from backend/.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_BACKEND = Path(__file__).resolve().parents[1]
+_ENV_FILES = (str(_REPO_ROOT / ".env"), str(_BACKEND / ".env"))
+
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_prefix="DORKHUB_", extra="ignore")
+    model_config = SettingsConfigDict(env_file=_ENV_FILES, env_prefix="DORKHUB_", extra="ignore")
 
     # Core
     app_name: str = "DorkHub"

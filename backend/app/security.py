@@ -1,26 +1,31 @@
 """Single-user password auth with a signed session cookie."""
 from __future__ import annotations
 
+import bcrypt
 from fastapi import Depends, HTTPException, Request, status
 from itsdangerous import BadSignature, URLSafeSerializer
-from passlib.context import CryptContext
 
 from app.config import get_settings
 
-_pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 COOKIE_NAME = "dorkhub_session"
 
 
+def _pw_bytes(password: str) -> bytes:
+    # bcrypt only considers the first 72 bytes; truncate to avoid a ValueError
+    # on newer bcrypt builds for longer inputs.
+    return password.encode("utf-8")[:72]
+
+
 def hash_password(password: str) -> str:
-    return _pwd.hash(password)
+    return bcrypt.hashpw(_pw_bytes(password), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(password: str, hashed: str) -> bool:
     if not hashed:
         return False
     try:
-        return _pwd.verify(password, hashed)
-    except ValueError:
+        return bcrypt.checkpw(_pw_bytes(password), hashed.encode("utf-8"))
+    except (ValueError, TypeError):
         return False
 
 

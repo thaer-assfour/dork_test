@@ -21,6 +21,23 @@ def _cmd_set_password(args) -> None:
     print(f"DORKHUB_AUTH_PASSWORD_HASH={h}")
 
 
+def _cmd_hash_password(args) -> None:
+    """Print only the bcrypt hash. Password is read from stdin (never argv)."""
+    from app.security import hash_password
+
+    password = sys.stdin.readline().rstrip("\n")
+    if not password:
+        print("empty password", file=sys.stderr)
+        sys.exit(1)
+    print(hash_password(password))
+
+
+def _cmd_gen_secret(_args) -> None:
+    import secrets
+
+    print(secrets.token_urlsafe(48))
+
+
 def _cmd_import_dorks(_args) -> None:
     from app.dorks.importer import import_library
 
@@ -65,6 +82,9 @@ def main() -> None:
     sp = sub.add_parser("set-password")
     sp.add_argument("password")
     sp.set_defaults(func=_cmd_set_password)
+
+    sub.add_parser("hash-password").set_defaults(func=_cmd_hash_password)
+    sub.add_parser("gen-secret").set_defaults(func=_cmd_gen_secret)
 
     sub.add_parser("import-dorks").set_defaults(func=_cmd_import_dorks)
 

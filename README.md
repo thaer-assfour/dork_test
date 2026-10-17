@@ -31,7 +31,39 @@ backend/    FastAPI + SQLAlchemy + RQ
   app/cli.py      run each module from the command line
 ```
 
-## Quick start (local, SQLite, no Redis)
+## Install with the one-step installer (recommended)
+
+The installer sets up the backend, builds the web UI, creates `.env`, and
+**prompts for your login password** during install. Requires Python 3.12+ and
+Node.js 20+.
+
+### Linux / macOS
+
+```bash
+cd dork_test
+./install.sh
+```
+
+### Windows (PowerShell)
+
+```powershell
+cd dork_test
+# If scripts are blocked, run once: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+.\install.ps1
+```
+
+Then start the server as the installer prints:
+
+```bash
+cd backend
+source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Open `http://localhost:8000` and sign in. Add a provider key to `.env`
+(`DORKHUB_SERPER_API_KEY` or DataForSEO credentials) before running real searches.
+
+## Manual quick start (local, SQLite, no Redis)
 
 ```bash
 # backend
