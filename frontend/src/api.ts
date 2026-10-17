@@ -165,4 +165,54 @@ export const api = {
   },
   labelResult: (id: number, label: string, notes?: string) =>
     req<ResultRow>(`/results/${id}`, { method: "PATCH", body: JSON.stringify({ label, notes }) }),
+
+  // ---- settings + AI ----
+  settings: () => req<SettingsResponse>("/settings"),
+  updateAiSettings: (body: AiSettingsIn) =>
+    req<AiConfig>("/settings/ai", { method: "PUT", body: JSON.stringify(body) }),
+  aiTest: () => req<{ ok: boolean; reply: string }>("/ai/test", { method: "POST" }),
+  aiTriage: (resultId: number, apply = false) =>
+    req<AiTriage>(`/ai/triage/${resultId}?apply=${apply}`, { method: "POST" }),
+  aiSummarizePolicy: (program_id?: number, text?: string) =>
+    req<AiPolicySummary>("/ai/summarize-policy", {
+      method: "POST",
+      body: JSON.stringify({ program_id, text }),
+    }),
+};
+
+export type AiConfig = {
+  enabled: boolean;
+  provider: "openai_compatible" | "anthropic";
+  base_url: string;
+  model: string;
+  has_key: boolean;
+  max_tokens: number;
+};
+
+export type SettingsResponse = {
+  ai: AiConfig;
+  model_catalog: Record<string, string[]>;
+};
+
+export type AiSettingsIn = Partial<{
+  enabled: boolean;
+  provider: string;
+  base_url: string;
+  model: string;
+  api_key: string; // "" leaves unchanged, "__CLEAR__" clears
+  max_tokens: number;
+}>;
+
+export type AiTriage = {
+  interesting: boolean;
+  score: number;
+  reason: string;
+  suggested_label: string;
+};
+
+export type AiPolicySummary = {
+  offers_bounty: boolean | null;
+  in_scope: string;
+  out_of_scope: string;
+  notes: string;
 };

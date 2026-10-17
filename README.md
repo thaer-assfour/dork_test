@@ -93,6 +93,27 @@ docker compose up --build
 # http://localhost:8000
 ```
 
+## Optional AI layer
+
+AI help is off by default and configured entirely in the **Settings** page — no
+code changes, no `.env` edits. It is used only on demand (triage a result,
+summarize a policy), never automatically.
+
+- **Important:** a Claude Pro/Max subscription is **not** API access. The Anthropic
+  API is billed separately (pay per token). A Pro plan cannot be used as an API key.
+- **Free, private, self-hosted option:** run a local model with
+  [Ollama](https://ollama.com), then in Settings pick the
+  "Local / OpenAI-compatible" provider with base URL `http://localhost:11434/v1`
+  and a model you've pulled (e.g. `llama3.1`). No key, no cost, nothing leaves
+  your machine.
+- **Hosted gateways:** any OpenAI-compatible endpoint works (OpenRouter, Groq,
+  Together, Gemini's OpenAI-compatible URL). Enter its `/v1` base URL + key.
+- **Anthropic API:** choose the Anthropic provider and enter an API key from
+  console.anthropic.com (separate billing from Pro).
+
+The provider key is stored **encrypted** in the database (AES via Fernet, keyed
+by `DORKHUB_SECRET_KEY`) and never returned to the browser.
+
 ## Search providers & cost
 
 Set the keys you have in `.env`; the UI shows which providers are configured and

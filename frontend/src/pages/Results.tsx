@@ -19,10 +19,22 @@ export default function Results() {
     queryFn: () => api.results(undefined, label || undefined),
     refetchInterval: 5000,
   });
+  const settings = useQuery({ queryKey: ["settings"], queryFn: api.settings });
+  const aiEnabled = !!settings.data?.ai.enabled;
 
   const setLbl = useMutation({
     mutationFn: ({ id, l }: { id: number; l: string }) => api.labelResult(id, l),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["results"] }),
+  });
+
+  const [triaged, setTriaged] = useState<Record<number, string>>({});
+  const triage = useMutation({
+    mutationFn: (id: number) => api.aiTriage(id, true),
+    onSuccess: (r, id) => {
+      setTriaged((t) => ({ ...t, [id]: `${r.score}/100 · ${r.reason}` }));
+      qc.invalidateQueries({ queryKey: ["results"] });
+    },
+    onError: (e: Error, id) => setTriaged((t) => ({ ...t, [id]: `error: ${e.message}` })),
   });
 
   return (
@@ -47,6 +59,7 @@ export default function Results() {
               <th className="th">Title</th>
               <th className="th">Seen</th>
               <th className="th">Label</th>
+              {aiEnabled && <th className="th">AI</th>}
             </tr>
           </thead>
           <tbody>
@@ -66,10 +79,22 @@ export default function Results() {
                     {LABELS.map((l) => <option key={l} value={l}>{l}</option>)}
                   </select>
                 </td>
+                {aiEnabled && (
+                  <td className="td">
+                    <button
+                      className="btn-ghost !px-2 !py-1 text-xs"
+                      disabled={triage.isPending}
+                      onClick={() => triage.mutate(r.id)}
+                    >
+                      Triage
+                    </button>
+                    {triaged[r.id] && <span className="text-xs text-slate-400 ml-2">{triaged[r.id]}</span>}
+                  </td>
+                )}
               </tr>
             ))}
             {results.data?.length === 0 && (
-              <tr><td className="td text-slate-500" colSpan={4}>No results yet. Run a scan.</td></tr>
+              <tr><td className="td text-slate-500" colSpan={aiEnabled ? 5 : 4}>No results yet. Run a scan.</td></tr>
             )}
           </tbody>
         </table>

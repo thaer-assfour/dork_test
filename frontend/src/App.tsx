@@ -10,6 +10,7 @@ import Dorks from "./pages/Dorks";
 import ScanPage from "./pages/ScanPage";
 import CoveragePage from "./pages/CoveragePage";
 import Results from "./pages/Results";
+import Settings from "./pages/Settings";
 
 const nav = [
   { to: "/", label: "Dashboard", end: true },
@@ -19,6 +20,7 @@ const nav = [
   { to: "/scan", label: "Run Scan" },
   { to: "/coverage", label: "Coverage" },
   { to: "/results", label: "Results" },
+  { to: "/settings", label: "Settings" },
 ];
 
 export default function App() {
@@ -85,6 +87,7 @@ export default function App() {
           <Route path="/scan" element={<ScanPage />} />
           <Route path="/coverage" element={<CoveragePage />} />
           <Route path="/results" element={<Results />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.ai_routes import router as ai_router
 from app.api.routes import router as api_router
 from app.config import get_settings
 from app.db.base import get_db, init_db
@@ -64,6 +65,7 @@ def export_results(fmt: str = "csv", db: Session = Depends(get_db)):
 
 
 app.include_router(api_router)
+app.include_router(ai_router)
 
 # Serve the built frontend if present (production). In dev, Vite serves it.
 _static = Path(__file__).parent.parent / "static"
